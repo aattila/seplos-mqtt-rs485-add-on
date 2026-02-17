@@ -625,7 +625,7 @@ class SeplosBatteryPack:
             'ambient_temperature':      { 'offset': 84,  'scale': 1/10, 'round': 1,  'bias': -2731 },
             'components_temperature':   { 'offset': 88,  'scale': 1/10, 'round': 1,  'bias': -2731 },
             'dis_charge_current':       { 'offset': 92,  'scale': 1/100, 'round': 2, 'signed': True },
-            'total_pack_voltage':       { 'offset': 96, 'scale': 1/100, 'round': 2 },
+            'total_pack_voltage':       { 'offset': 96,  'scale': 1/100, 'round': 2 },
             'residual_capacity':        { 'offset': 100, 'scale': 1/100, 'round': 2 },
             'battery_capacity':         { 'offset': 104, 'scale': 1/100, 'round': 1 },
             'state_of_charge':          { 'offset': 108, 'scale': 1/10, 'round': 1 },
@@ -643,6 +643,8 @@ class SeplosBatteryPack:
             bias = cfg.get("bias", 0)
             signed = cfg.get("signed", False)
             amount = cfg.get("amount", 1)
+
+            logger.debug("Decoding telemetry field: %s", attr)
 
             if amount > 1:
                 for i in range(amount):
