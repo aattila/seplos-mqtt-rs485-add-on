@@ -582,6 +582,8 @@ class SeplosBatteryPack:
         telemetry_feedback = {"normal": {}}
         feedback = telemetry_feedback["normal"]
 
+        logger.debug("Data %s: ", data)
+
         # Number of cells
         number_of_cells = self.int_from_1byte_hex_ascii(data, offset=4)
         logger.debug(
@@ -620,7 +622,8 @@ class SeplosBatteryPack:
             'rated_capacity':           { 'offset': 114, 'scale': 1/100, 'round': 1 },
             'charging_cycles':          { 'offset': 118 },
             'state_of_health':          { 'offset': 122, 'scale': 1/10, 'round': 1 },
-            'port_voltage':             { 'offset': 126, 'scale': 1/100, 'round': 2 }
+            'port_voltage':             { 'offset': 126, 'scale': 1/100, 'round': 2 },
+            'unk':                      { 'offset': 130, 'scale': 1/100, 'round': 2 }
         }
 
         ## Fetch values for all telemetry fields
