@@ -720,6 +720,10 @@ class SeplosBatteryPack:
 
         # Number of cells
         number_of_cells = bytes.fromhex(data.decode("ascii"))[2]
+        logger.debug(
+            "Number of cells %s",
+            number_of_cells
+        )
 
         # 24-Byte alarms
 
@@ -768,6 +772,8 @@ class SeplosBatteryPack:
         feedback_normal["any_cell_temperature_alarm"] = (
             "Alarm" if any(cta != "OK" for cta in self.telesignalization.cell_temperature_alarm) else "OK"
         )
+
+        logger.debug("24 byte alarms decoded")
 
          # 20-Bit alarms
 
@@ -899,6 +905,8 @@ class SeplosBatteryPack:
             offset = cfg["offset"]
             sensors = cfg["sensors"]
 
+            logger.debug("Reading group %s with offset %s", group, offset)
+
             for sensor in sensors:
                 name       = sensor.get("name")
                 mode       = sensor.get("mode")
@@ -906,6 +914,8 @@ class SeplosBatteryPack:
                 second_bit = sensor.get("second_bit")
                 amount     = sensor.get("amount", 1)
                 start      = sensor.get("start", 0)
+
+                logger.debug("Processing sensor %s with mode %s", name, mode)
 
                 #### Binary-sensors only
                 if amount > 1:
