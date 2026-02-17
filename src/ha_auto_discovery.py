@@ -1078,7 +1078,7 @@ class AutoDiscoveryConfig:
 
         # Create Disconnection sensors
         self.create_similar_binary_sensor_config(
-            num_sensors=,
+            num_sensors=15,
             pack_no=pack_no,
             value_template_group="telesignalization",
             base_value_template_key="disconnection_cell",
