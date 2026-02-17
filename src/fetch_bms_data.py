@@ -1115,7 +1115,7 @@ def initialize_mqtt() -> mqtt.Client:
 def initialize_serial() -> serial.Serial:
     """Initialize serial connection."""
     try:
-        baudrate = 9600 if Config.NUMBER_OF_PACKS > 1 else 19200
+        baudrate = 19200
         logger.info(
             "Initializing serial interface %s at %s baud",
             Config.SERIAL_INTERFACE,
