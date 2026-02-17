@@ -262,7 +262,7 @@ class Telemetry:
     def __init__(self):
         # From pack
         self.voltage_cell: List[Optional[float]] = [None] * 15
-        self.cell_temperature: List[Optional[float]] = [None] * 6
+        self.cell_temperature: List[Optional[float]] = [None] * 4
         self.ambient_temperature: Optional[float] = None
         self.components_temperature: Optional[float] = None
         self.dis_charge_current: Optional[float] = None
@@ -298,7 +298,7 @@ class Telesignalization:
     def __init__(self):
         # 24 byte alarms
         self.cell_voltage_alarm: List[Optional[str]] = [None] * 15
-        self.cell_temperature_alarm: List[Optional[str]] = [None] * 6
+        self.cell_temperature_alarm: List[Optional[str]] = [None] * 4
         self.ambient_temperature_alarm: Optional[str] = None
         self.component_temperature_alarm: Optional[str] = None
         self.dis_charging_current_alarm: Optional[str] = None
