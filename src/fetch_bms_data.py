@@ -1157,16 +1157,24 @@ def main():
 
         # Initialize battery packs
         app_state.battery_packs.clear()
+        
+        _pack_address = 0
+
         for i in range(Config.NUMBER_OF_PACKS):
-            pack_instance = SeplosBatteryPack(pack_address=i)
+            if Config.NUMBER_OF_PACKS > 1:
+                _pack_address = i + 1 # Multiple packs address starts with 1
+            else
+                _pack_address = i # Single pack address is 0
+            pack_instance = SeplosBatteryPack(pack_address=_pack_address)
             app_state.battery_packs.append({
                 "pack_instance": pack_instance,
-                "address": i,
+                "address": _pack_address,
                 "last_success_ts": 0.0,
                 "publish_counter": 0,
                 "availability": "offline",
             })
         logger.info("Initialized %s battery pack(s)", Config.NUMBER_OF_PACKS)
+        
         for pack in app_state.battery_packs:
             app_state.mqtt_client.publish(_pack_availability_topic(pack["address"]), "offline", retain=False)
 
