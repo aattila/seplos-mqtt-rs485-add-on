@@ -1031,7 +1031,7 @@ class SeplosBatteryPack:
             # Request telemetry data
             telemetry_feedback = self._request_feedback_frame(
                 cid2=0x42,
-                expected_length=150,
+                expected_length=146,
                 decoder=self.decode_telemetry_feedback_frame,
                 frame_label="Telemetry"
             )
