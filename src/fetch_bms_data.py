@@ -582,7 +582,7 @@ class SeplosBatteryPack:
         telemetry_feedback = {"normal": {}}
         feedback = telemetry_feedback["normal"]
 
-        logger.debug("Data %s: ", data)
+        logger.debug("Data: %s", data)
 
         # Number of cells
         number_of_cells = self.int_from_1byte_hex_ascii(data, offset=4)
@@ -609,6 +609,16 @@ class SeplosBatteryPack:
 
         # Dynamic values from the BMS
 
+        # 00010F0CF80CF60CF80CF80CF90CF80CF70CF80CD80CF80CF80CF70CF80CF80CF7060B9B0B9A0B9B0B9A0BB40B9DFF3413701E560A27100308271002F003E813740000000000000000
+
+        #     Head: 00010F
+        # 15 cells: 0CF8 0CF6 0CF8 0CF8 0CF9 0CF8 0CF7 0CF8 0CD8 0CF8 0CF8 0CF7 0CF8 0CF8 0CF7
+        #           06
+        #    Temps: 0B9B 0B9A 0B9B 0B9A 0BB4 0B9D 
+        #  Current: FF34
+        #  Voltage: 1370
+        #  1E56 0A27 1003 0827 1002 F003 E813 7400 00000000000000
+
         telemetry_fields = {
             'voltage_cell':             { 'offset': 6,   'scale': 1/1000, 'round': 3, 'amount': number_of_cells },
             'cell_temperature':         { 'offset': 68,  'scale': 1/10, 'round': 1,  'bias': -2731, 'amount': 4 },
@@ -617,13 +627,12 @@ class SeplosBatteryPack:
             'dis_charge_current':       { 'offset': 92,  'scale': 1/100, 'round': 2, 'signed': True },
             'total_pack_voltage':       { 'offset': 96, 'scale': 1/100, 'round': 2 },
             'residual_capacity':        { 'offset': 100, 'scale': 1/100, 'round': 2 },
-            'battery_capacity':         { 'offset': 106, 'scale': 1/100, 'round': 1 },
-            'state_of_charge':          { 'offset': 110, 'scale': 1/10, 'round': 1 },
-            'rated_capacity':           { 'offset': 114, 'scale': 1/100, 'round': 1 },
-            'charging_cycles':          { 'offset': 118 },
-            'state_of_health':          { 'offset': 122, 'scale': 1/10, 'round': 1 },
-            'port_voltage':             { 'offset': 126, 'scale': 1/100, 'round': 2 },
-            'unk':                      { 'offset': 130, 'scale': 1/100, 'round': 2 }
+            'battery_capacity':         { 'offset': 104, 'scale': 1/100, 'round': 1 },
+            'state_of_charge':          { 'offset': 108, 'scale': 1/10, 'round': 1 },
+            'rated_capacity':           { 'offset': 112, 'scale': 1/100, 'round': 1 },
+            'charging_cycles':          { 'offset': 116 },
+            'state_of_health':          { 'offset': 120, 'scale': 1/10, 'round': 1 },
+            'port_voltage':             { 'offset': 124, 'scale': 1/100, 'round': 2 }
         }
 
         ## Fetch values for all telemetry fields
