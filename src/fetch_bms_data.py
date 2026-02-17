@@ -692,19 +692,24 @@ class SeplosBatteryPack:
 
         # Calculated values
 
+        logger.debug("!!! 1")
+
         # Get values from previous readings
         dis_charge_current  = self.telemetry.dis_charge_current
         total_pack_voltage  = self.telemetry.total_pack_voltage
         cell_voltages       = self.telemetry.voltage_cell
         cell_temps          = self.telemetry.cell_temperature
+        logger.debug("!!! 2")
 
         ## Dis-/charge power
         dis_charge_power = round(dis_charge_current * total_pack_voltage, 2)
         self.telemetry.dis_charge_power = dis_charge_power
+        logger.debug("!!! 3")
 
         ## Average cell voltage
         avg_voltage = round(sum(cell_voltages) / len(cell_voltages), 3)
         self.telemetry.average_cell_voltage = avg_voltage
+        logger.debug("!!! 4")
 
         ## Highest/lowest cell and voltage
         lowest_idx, lowest_voltage = min(
@@ -713,20 +718,25 @@ class SeplosBatteryPack:
         highest_idx, highest_voltage = max(
             enumerate(cell_voltages), key=lambda x: x[1]
         )
+        logger.debug("!!! 5")
+
         self.telemetry.lowest_cell = lowest_idx
         self.telemetry.lowest_cell_voltage = lowest_voltage
         self.telemetry.highest_cell = highest_idx
         self.telemetry.highest_cell_voltage = highest_voltage
+        logger.debug("!!! 6")
 
         ## Delta cell voltage
         delta_cell_voltage = round(highest_voltage - lowest_voltage, 3)
         self.telemetry.delta_cell_voltage = delta_cell_voltage
+        logger.debug("!!! 7")
 
         # Delta cell temperature
         delta_cell_temperature = round(
             max(cell_temps) - min(cell_temps), 1
         )
         self.telemetry.delta_cell_temperature = delta_cell_temperature
+        logger.debug("!!! 8")
 
         ### Add to telemetry_feedback
         feedback.update({
