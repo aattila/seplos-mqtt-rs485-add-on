@@ -371,13 +371,13 @@ class Telesignalization:
         self.heating_switch: Optional[str] = None
 
         # Passive balancing status
-        self.balancer_cell: List[Optional[str]] = [None] * 15
+        self.balancer_cell: List[Optional[str]] = [None] * 16
 
         # System status
         self.system_status: Optional[str] = None
 
         # Cell disconnection status
-        self.disconnection_cell: List[Optional[str]] = [None] * 15
+        self.disconnection_cell: List[Optional[str]] = [None] * 16
 
 
 class SeplosBatteryPack:
