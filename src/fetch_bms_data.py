@@ -610,17 +610,17 @@ class SeplosBatteryPack:
         telemetry_fields = {
             'voltage_cell':             { 'offset': 6,   'scale': 1/1000, 'round': 3, 'amount': number_of_cells },
             'cell_temperature':         { 'offset': 72,  'scale': 1/10, 'round': 1,  'bias': -2731, 'amount': 5 },
-            'ambient_temperature':      { 'offset': 88,  'scale': 1/10, 'round': 1,  'bias': -2731 },
-            'components_temperature':   { 'offset': 92,  'scale': 1/10, 'round': 1,  'bias': -2731 },
-            'dis_charge_current':       { 'offset': 96,  'scale': 1/100, 'round': 2, 'signed': True },
-            'total_pack_voltage':       { 'offset': 100, 'scale': 1/100, 'round': 2 },
-            'residual_capacity':        { 'offset': 104, 'scale': 1/100, 'round': 2 },
-            'battery_capacity':         { 'offset': 110, 'scale': 1/100, 'round': 1 },
-            'state_of_charge':          { 'offset': 114, 'scale': 1/10, 'round': 1 },
-            'rated_capacity':           { 'offset': 118, 'scale': 1/100, 'round': 1 },
-            'charging_cycles':          { 'offset': 122 },
-            'state_of_health':          { 'offset': 126, 'scale': 1/10, 'round': 1 },
-            'port_voltage':             { 'offset': 130, 'scale': 1/100, 'round': 2 }
+            'ambient_temperature':      { 'offset': 92,  'scale': 1/10, 'round': 1,  'bias': -2731 },
+            'components_temperature':   { 'offset': 96,  'scale': 1/10, 'round': 1,  'bias': -2731 },
+            'dis_charge_current':       { 'offset': 100,  'scale': 1/100, 'round': 2, 'signed': True },
+            'total_pack_voltage':       { 'offset': 104, 'scale': 1/100, 'round': 2 },
+            'residual_capacity':        { 'offset': 108, 'scale': 1/100, 'round': 2 },
+            'battery_capacity':         { 'offset': 114, 'scale': 1/100, 'round': 1 },
+            'state_of_charge':          { 'offset': 118, 'scale': 1/10, 'round': 1 },
+            'rated_capacity':           { 'offset': 122, 'scale': 1/100, 'round': 1 },
+            'charging_cycles':          { 'offset': 126 },
+            'state_of_health':          { 'offset': 130, 'scale': 1/10, 'round': 1 },
+            'port_voltage':             { 'offset': 134, 'scale': 1/100, 'round': 2 }
         }
 
         ## Fetch values for all telemetry fields
