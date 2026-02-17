@@ -292,94 +292,6 @@ class Telemetry:
         self.dis_charge_power: Optional[float] = None
 
 
-class Telesignalization:
-    """Holds warning, protection, lockout, normal, on and off states for different alarms."""
-
-    def __init__(self):
-        # 24 byte alarms
-        self.cell_voltage_alarm: List[Optional[str]] = [None] * 15
-        self.cell_temperature_alarm: List[Optional[str]] = [None] * 4
-        self.ambient_temperature_alarm: Optional[str] = None
-        self.component_temperature_alarm: Optional[str] = None
-        self.dis_charging_current_alarm: Optional[str] = None
-        self.pack_voltage_alarm: Optional[str] = None
-
-        # 20 bit alarms (grouped for clarity)
-        self.alarms = {
-            # Warning 1 - System failures
-            'voltage_sensing_failure': None,
-            'temperature_sensing_failure': None,
-            'current_sensing_failure': None,
-            'power_switch_failure': None,
-            'cell_voltage_difference_sensing_failure': None,
-            'charging_switch_failure': None,
-            'discharging_switch_failure': None,
-            'current_limit_switch_failure': None,
-
-            # Warning 2 - Voltage issues
-            'cell_overvoltage': None,
-            'cell_voltage_low': None,
-            'pack_overvoltage': None,
-            'pack_voltage_low': None,
-
-            # Warning 3 - Temperature issues
-            'charging_temperature_high': None,
-            'charging_temperature_low': None,
-            'discharging_temperature_high': None,
-            'discharging_temperature_low': None,
-
-            # Warning 4 - Ambient temperature
-            'ambient_temperature_high': None,
-            'ambient_temperature_low': None,
-            'component_temperature_high': None,
-            'low_temperature_heating': None,
-
-            # Warning 5 - Current issues
-            'charging_overcurrent': None,
-            'discharging_overcurrent': None,
-            'transient_overcurrent': None,
-            'output_short_circuit': None,
-
-            # Warning 6 - Miscellaneous
-            'charging_high_voltage_protection': None,
-            'intermittent_power_supplement': None,
-            'soc_low': None,
-            'cell_low_voltage_forbidden_charging': None,
-            'output_reverse_polarity_protection': None,
-            'output_connection_failure': None,
-
-            # Warning 7 - Charging wait
-            'auto_charging_wait': None,
-            'manual_charging_wait': None,
-
-            # Warning 8 - System errors
-            'eep_storage_failure': None,
-            'rtc_clock_failure': None,
-            'no_calibration_of_voltage': None,
-            'no_calibration_of_current': None,
-            'no_calibration_of_null_point': None
-        }
-
-        # Initialize warning attributes for backward compatibility
-        for key in self.alarms:
-            setattr(self, key, None)
-
-        # Switch status
-        self.discharge_switch: Optional[str] = None
-        self.charge_switch: Optional[str] = None
-        self.current_limit_switch: Optional[str] = None
-        self.heating_switch: Optional[str] = None
-
-        # Passive balancing status
-        self.balancer_cell: List[Optional[str]] = [None] * 16
-
-        # System status
-        self.system_status: Optional[str] = None
-
-        # Cell disconnection status
-        self.disconnection_cell: List[Optional[str]] = [None] * 16
-
-
 class SeplosBatteryPack:
     """Handles all methods for fetching, validating and parsing BMS data."""
 
@@ -401,7 +313,6 @@ class SeplosBatteryPack:
         self.pack_address = pack_address
         self.last_status: Optional[BatteryData] = None
         self.telemetry = Telemetry()
-        self.telesignalization = Telesignalization()
 
     @staticmethod
     def calculate_frame_checksum(frame: bytes) -> int:
@@ -743,256 +654,6 @@ class SeplosBatteryPack:
 
         return telemetry_feedback
 
-    def decode_telesignalization_feedback_frame(self, data: bytes) -> Dict[str, Any]:
-        """Decode battery pack telesignalization feedback frame."""
-        telesignalization_feedback = {"normal": {}, "binary": {}}
-        feedback_normal = telesignalization_feedback["normal"]
-        feedback_binary = telesignalization_feedback["binary"]
-
-        logger.debug("Internal Data: %s", data)
-
-        # Number of cells
-        number_of_cells = bytes.fromhex(data.decode("ascii"))[2]
-        logger.debug(
-            "Number of cells %s",
-            number_of_cells
-        )
-
-        # 24-Byte alarms
-
-        byte_alarm_fields = {
-            'cell_voltage_alarm':           { 'offset': 3,   'amount': number_of_cells },
-            'cell_temperature_alarm':       { 'offset': 20,  'amount': 4 },
-            'ambient_temperature_alarm':    { 'offset': 24 },
-            'component_temperature_alarm':  { 'offset': 25 },
-            'dis_charging_current_alarm':   { 'offset': 26 },
-            'pack_voltage_alarm':           { 'offset': 27 }
-        }
-
-        ## Fetch values for all byte_alarm fields
-        for attr, cfg in byte_alarm_fields.items():
-            offset = cfg["offset"]
-            amount = cfg.get("amount", 1)
-
-            if amount > 1:
-                for i in range(amount):
-                    value = self.status_from_24_byte_alarm(
-                        data,
-                        offset + i
-                    )
-                    getattr(self.telesignalization, attr)[i] = value
-
-                    ### Add to telesignalization_feedback
-                    feedback_normal[f"{attr}_{i + 1}"] = value
-            else:
-                value = self.status_from_24_byte_alarm(
-                    data,
-                    offset
-                )
-                setattr(self.telesignalization, attr, value)
-
-                ### Add to telesignalization_feedback
-                feedback_normal[attr] = value
-
-        # Calculated values
-
-        ## General cell voltage alarm if any of the cells has an active alarm
-        feedback_normal["any_cell_voltage_alarm"] = (
-            "Alarm" if any(cva != "OK" for cva in self.telesignalization.cell_voltage_alarm) else "OK"
-        )
-
-        ## General cell temperature alarm if any of the cells has an active alarm
-        feedback_normal["any_cell_temperature_alarm"] = (
-            "Alarm" if any(cta != "OK" for cta in self.telesignalization.cell_temperature_alarm) else "OK"
-        )
-
-        logger.debug("24 byte alarms decoded")
-
-         # 20-Bit alarms
-
-        bit_alarm_fields = {
-            'alarm_event_1': {
-                'offset': 29,
-                'sensors': [
-                    { 'name': 'voltage_sensing_failure', 'mode': 'fault_normal', 'first_bit': 0 },
-                    { 'name': 'temperature_sensing_failure', 'mode': 'fault_normal', 'first_bit': 1 },
-                    { 'name': 'current_sensing_failure', 'mode': 'fault_normal', 'first_bit': 2 },
-                    { 'name': 'power_switch_failure', 'mode': 'fault_normal', 'first_bit': 3 },
-                    { 'name': 'cell_voltage_difference_sensing_failure', 'mode': 'fault_normal', 'first_bit': 4 },
-                    { 'name': 'charging_switch_failure', 'mode': 'fault_normal', 'first_bit': 5 },
-                    { 'name': 'discharging_switch_failure', 'mode': 'fault_normal', 'first_bit': 6 },
-                    { 'name': 'current_limit_switch_failure', 'mode': 'fault_normal', 'first_bit': 7 }
-                ]
-            },
-            'alarm_event_2': {
-                'offset': 30,
-                'sensors': [
-                    { 'name': 'cell_overvoltage', 'mode': 'protection_alarm_normal', 'first_bit': 0, 'second_bit': 1 },
-                    { 'name': 'cell_voltage_low', 'mode': 'protection_alarm_normal', 'first_bit': 2, 'second_bit': 3 },
-                    { 'name': 'pack_overvoltage', 'mode': 'protection_alarm_normal', 'first_bit': 4, 'second_bit': 5 },
-                    { 'name': 'pack_voltage_low', 'mode': 'protection_alarm_normal', 'first_bit': 6, 'second_bit': 7 }
-                ]
-            },
-            'alarm_event_3': {
-                'offset': 31,
-                'sensors': [
-                    { 'name': 'charging_temperature_high', 'mode': 'protection_alarm_normal', 'first_bit': 0, 'second_bit': 1 },
-                    { 'name': 'charging_temperature_low', 'mode': 'protection_alarm_normal', 'first_bit': 2, 'second_bit': 3 },
-                    { 'name': 'discharging_temperature_high', 'mode': 'protection_alarm_normal', 'first_bit': 4, 'second_bit': 5 },
-                    { 'name': 'discharging_temperature_low', 'mode': 'protection_alarm_normal', 'first_bit': 6, 'second_bit': 7 }
-                ]
-            },
-            'alarm_event_4': {
-                'offset': 32,
-                'sensors': [
-                    { 'name': 'ambient_temperature_high', 'mode': 'protection_alarm_normal', 'first_bit': 0, 'second_bit': 1 },
-                    { 'name': 'ambient_temperature_low', 'mode': 'protection_alarm_normal', 'first_bit': 2, 'second_bit': 3 },
-                    { 'name': 'component_temperature_high', 'mode': 'protection_alarm_normal', 'first_bit': 4, 'second_bit': 5 },
-                    { 'name': 'low_temperature_heating', 'mode': 'on_off', 'first_bit': 6 }
-                ]
-            },
-            'alarm_event_5': {
-                'offset': 33,
-                'sensors': [
-                    { 'name': 'charging_overcurrent', 'mode': 'protection_alarm_normal', 'first_bit': 0, 'second_bit': 1 },
-                    { 'name': 'discharging_overcurrent', 'mode': 'protection_alarm_normal', 'first_bit': 2, 'second_bit': 3 },
-                    { 'name': 'transient_overcurrent', 'mode': 'lockout_protection_normal', 'first_bit': 4, 'second_bit': 5 },
-                    { 'name': 'output_short_circuit', 'mode': 'lockout_protection_normal', 'first_bit': 6, 'second_bit': 7 }
-                ]
-            },
-            'alarm_event_6': {
-                'offset': 34,
-                'sensors': [
-                    { 'name': 'charging_high_voltage_protection', 'mode': 'protection_normal', 'first_bit': 0 },
-                    { 'name': 'intermittent_power_supplement', 'mode': 'warning_normal', 'first_bit': 1 },
-                    { 'name': 'soc_low', 'mode': 'protection_alarm_normal', 'first_bit': 2, 'second_bit': 3 },
-                    { 'name': 'cell_low_voltage_forbidden_charging', 'mode': 'protection_normal', 'first_bit': 4 },
-                    { 'name': 'output_reverse_polarity_protection', 'mode': 'protection_normal', 'first_bit': 5 },
-                    { 'name': 'output_connection_failure', 'mode': 'fault_normal', 'first_bit': 6 }
-                ]
-            },
-            'switch_status': {
-                'offset': 35,
-                'sensors': [
-                    { 'name': 'discharge_switch', 'mode': 'on_off', 'first_bit': 0 },
-                    { 'name': 'charge_switch', 'mode': 'on_off', 'first_bit': 1 },
-                    { 'name': 'current_limit_switch', 'mode': 'on_off', 'first_bit': 2 },
-                    { 'name': 'heating_switch', 'mode': 'on_off', 'first_bit': 3 }
-                ]
-            },
-            'balancer_1':  {
-                'offset': 36,
-                'sensors': [
-                    { 'name': 'balancer_cell', 'mode': 'on_off', 'first_bit': 0, 'amount': 8 }
-                ]
-            },
-            'balancer_2':  {
-                'offset': 37,
-                'sensors': [
-                    { 'name': 'balancer_cell', 'mode': 'on_off', 'first_bit': 0, 'amount': 8, "start": 8 }
-                ]
-            },
-            'system_status': {
-                'offset': 38,
-                'sensors': [
-                    { 'name': 'Discharging', 'mode': 'on_off', 'first_bit': 0 },
-                    { 'name': 'Charging', 'mode': 'on_off', 'first_bit': 1 },
-                    { 'name': 'Floating Charge', 'mode': 'on_off', 'first_bit': 2 },
-                    { 'name': 'Standby', 'mode': 'on_off', 'first_bit': 4 },
-                    { 'name': 'Off', 'mode': 'on_off', 'first_bit': 5 }
-                ]
-            },
-            'disconnection_1':  {
-                'offset': 39,
-                'sensors': [
-                    { 'name': 'disconnection_cell', 'mode': 'warning_normal', 'first_bit': 0, 'amount': 8 }
-                ]
-            },
-            'disconnection_2':  {
-                'offset': 40,
-                'sensors': [
-                    { 'name': 'disconnection_cell', 'mode': 'warning_normal', 'first_bit': 0, 'amount': 8, "start": 8 }
-                ]
-            },
-            'alarm_event_7': {
-                'offset': 41,
-                'sensors': [
-                    { 'name': 'auto_charging_wait', 'mode': 'warning_normal', 'first_bit': 4 },
-                    { 'name': 'manual_charging_wait', 'mode': 'warning_normal', 'first_bit': 5 }
-                ]
-            },
-            'alarm_event_8': {
-                'offset': 42,
-                'sensors': [
-                    { 'name': 'eep_storage_failure', 'mode': 'fault_normal', 'first_bit': 0 },
-                    { 'name': 'rtc_clock_failure', 'mode': 'fault_normal', 'first_bit': 1 },
-                    { 'name': 'no_calibration_of_voltage', 'mode': 'warning_normal', 'first_bit': 2 },
-                    { 'name': 'no_calibration_of_current', 'mode': 'warning_normal', 'first_bit': 3 },
-                    { 'name': 'no_calibration_of_null_point', 'mode': 'warning_normal', 'first_bit': 4 }
-                ]
-            }
-        }
-
-        ## Fetch values for all bit_alarm fields
-        for group, cfg in bit_alarm_fields.items():
-            offset = cfg["offset"]
-            sensors = cfg["sensors"]
-
-            logger.debug("Reading group %s with offset %s", group, offset)
-
-            for sensor in sensors:
-                name       = sensor.get("name")
-                mode       = sensor.get("mode")
-                first_bit  = sensor.get("first_bit", 0)
-                second_bit = sensor.get("second_bit")
-                amount     = sensor.get("amount", 1)
-                start      = sensor.get("start", 0)
-
-                logger.debug("Processing sensor %s with mode %s", name, mode)
-
-                #### Binary-sensors only
-                if amount > 1:
-                    arr = getattr(self.telesignalization, name)
-
-                    for i in range(amount):
-                        bit = first_bit + i
-                        value = self.status_from_20_bit_alarm(
-                            data,
-                            offset,
-                            mode=mode,
-                            first_bit=bit
-                        )
-                        idx = start + i
-                        arr[idx] = value
-
-                        ### Add to telesignalization_feedback
-                        feedback_binary[f"{name}_{idx + 1}"] = value
-                #### Normal- and binary-sensors
-                else:
-                    value = self.status_from_20_bit_alarm(
-                        data,
-                        offset,
-                        mode=mode,
-                        first_bit=first_bit,
-                        second_bit=second_bit
-                    )
-                    if group == "system_status": # Special handling of system-status
-                        if value == "ON":
-                            setattr(self.telesignalization, group, name)
-
-                            ### Add to telesignalization_feedback
-                            feedback_normal[group] = name
-                    else:
-                        setattr(self.telesignalization, name, value)
-
-                        ### Add to telesignalization_feedback
-                        if mode in ("protection_alarm_normal", "lockout_protection_normal"):
-                            feedback_normal[name] = value
-                        else:
-                            feedback_binary[name] = value
-
-        return telesignalization_feedback
-
     def _request_feedback_frame(
         self,
         cid2: int,
@@ -1000,7 +661,9 @@ class SeplosBatteryPack:
         decoder: Callable[[bytes], Dict[str, Any]],
         frame_label: str
     ) -> Optional[Dict[str, Any]]:
-        """Request a feedback frame (telemetry or telesignalization) with retry/validation."""
+        
+        """Request a feedback frame with retry/validation."""
+        
         if not app_state.serial_instance:
             logger.error("Serial instance not initialized")
             return None, False
@@ -1067,7 +730,6 @@ class SeplosBatteryPack:
 
         battery_pack_data = {
             "telemetry": {},
-            "telesignalization": {}
         }
 
         try:
@@ -1088,17 +750,6 @@ class SeplosBatteryPack:
 
             # Mandatory delay between each request or there will be corrupt data
             time.sleep(1)
-
-            # Request telesignalization data
-            telesignalization_feedback = self._request_feedback_frame(
-                cid2=0x44,
-                expected_length=96,
-                decoder=self.decode_telesignalization_feedback_frame,
-                frame_label="Telesignalization"
-            )
-            if telesignalization_feedback is None:
-                return None, False
-            battery_pack_data["telesignalization"] = telesignalization_feedback
 
             # Check if data has changed
             if self.last_status is None or self.last_status != battery_pack_data:
