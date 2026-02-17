@@ -1,5 +1,5 @@
 """
-Seplos V2 / V16 BMS Data Fetcher
+Seplos V2 / V15 BMS Data Fetcher
 Reads one or more Seplos protocol v2.0 BMS (in parallel) via
 (remote) serial connection(s) and publishes their data to MQTT
 """
@@ -193,7 +193,7 @@ class Config:
     NUMBER_OF_PACKS = get_env_value("NUMBER_OF_PACKS", 1, int)
 
     # Serial Configuration
-    SERIAL_INTERFACE = get_env_value("SERIAL_INTERFACE", "/tmp/vcom0", str)
+    SERIAL_INTERFACE = get_env_value("SERIAL_INTERFACE", "/dev/ttyUSB0", str)
 
     # MQTT Configuration
     MQTT_HOST = get_env_value("MQTT_HOST", "192.168.1.100", str)
@@ -261,7 +261,7 @@ class Telemetry:
 
     def __init__(self):
         # From pack
-        self.voltage_cell: List[Optional[float]] = [None] * 16
+        self.voltage_cell: List[Optional[float]] = [None] * 15
         self.cell_temperature: List[Optional[float]] = [None] * 4
         self.ambient_temperature: Optional[float] = None
         self.components_temperature: Optional[float] = None
@@ -297,7 +297,7 @@ class Telesignalization:
 
     def __init__(self):
         # 24 byte alarms
-        self.cell_voltage_alarm: List[Optional[str]] = [None] * 16
+        self.cell_voltage_alarm: List[Optional[str]] = [None] * 15
         self.cell_temperature_alarm: List[Optional[str]] = [None] * 4
         self.ambient_temperature_alarm: Optional[str] = None
         self.component_temperature_alarm: Optional[str] = None
@@ -371,13 +371,13 @@ class Telesignalization:
         self.heating_switch: Optional[str] = None
 
         # Passive balancing status
-        self.balancer_cell: List[Optional[str]] = [None] * 16
+        self.balancer_cell: List[Optional[str]] = [None] * 15
 
         # System status
         self.system_status: Optional[str] = None
 
         # Cell disconnection status
-        self.disconnection_cell: List[Optional[str]] = [None] * 16
+        self.disconnection_cell: List[Optional[str]] = [None] * 15
 
 
 class SeplosBatteryPack:
@@ -542,7 +542,7 @@ class SeplosBatteryPack:
             return 0
 
         lchksum = (lenid & 0xF) + ((lenid >> 4) & 0xF) + ((lenid >> 8) & 0xF)
-        lchksum %= 16
+        lchksum %= 15
         lchksum ^= 0xF
         lchksum += 1
 
@@ -584,6 +584,10 @@ class SeplosBatteryPack:
 
         # Number of cells
         number_of_cells = self.int_from_1byte_hex_ascii(data, offset=4)
+        logger.debug(
+            "Number of cells %s",
+            number_of_cells
+        )
 
         # Static values from configs
 
