@@ -262,7 +262,7 @@ class Telemetry:
     def __init__(self):
         # From pack
         self.voltage_cell: List[Optional[float]] = [None] * 15
-        self.cell_temperature: List[Optional[float]] = [None] * 4
+        self.cell_temperature: List[Optional[float]] = [None] * 5
         self.ambient_temperature: Optional[float] = None
         self.components_temperature: Optional[float] = None
         self.dis_charge_current: Optional[float] = None
@@ -609,7 +609,7 @@ class SeplosBatteryPack:
 
         telemetry_fields = {
             'voltage_cell':             { 'offset': 6,   'scale': 1/1000, 'round': 3, 'amount': number_of_cells },
-            'cell_temperature':         { 'offset': 72,  'scale': 1/10, 'round': 1,  'bias': -2731, 'amount': 4 },
+            'cell_temperature':         { 'offset': 72,  'scale': 1/10, 'round': 1,  'bias': -2731, 'amount': 5 },
             'ambient_temperature':      { 'offset': 88,  'scale': 1/10, 'round': 1,  'bias': -2731 },
             'components_temperature':   { 'offset': 92,  'scale': 1/10, 'round': 1,  'bias': -2731 },
             'dis_charge_current':       { 'offset': 96,  'scale': 1/100, 'round': 2, 'signed': True },

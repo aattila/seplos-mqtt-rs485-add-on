@@ -20,9 +20,9 @@ BASE_SENSOR = {
 }
 
 DEVICE_BASE_CONFIG = {
-    "hw": "10C / 10E",  # hw_version
-    "sw": "2.x / 16.x",  # sw_version
-    "mdl": "BMS V14 / V16",  # model
+    "hw": "1101-ZH43",  # hw_version
+    "sw": "2.7",  # sw_version
+    "mdl": "BMS V2",  # model
     "mf": "Seplos"  # manufacturer
 }
 
@@ -1004,7 +1004,7 @@ class AutoDiscoveryConfig:
 
         # Create cell voltage sensors
         self.create_similar_sensor_config(
-            num_sensors=16,
+            num_sensors=15,
             pack_no=pack_no,
             value_template_group="telemetry",
             base_value_template_key="voltage_cell",
@@ -1045,7 +1045,7 @@ class AutoDiscoveryConfig:
 
         # Create Cell voltage warning sensors
         self.create_similar_sensor_config(
-            num_sensors=16,
+            num_sensors=15,
             pack_no=pack_no,
             value_template_group="telesignalization",
             base_value_template_key="cell_voltage_alarm",
@@ -1067,7 +1067,7 @@ class AutoDiscoveryConfig:
 
         # Create Balancer sensors
         self.create_similar_binary_sensor_config(
-            num_sensors=16,
+            num_sensors=15,
             pack_no=pack_no,
             value_template_group="telesignalization",
             base_value_template_key="balancer_cell",
@@ -1078,7 +1078,7 @@ class AutoDiscoveryConfig:
 
         # Create Disconnection sensors
         self.create_similar_binary_sensor_config(
-            num_sensors=16,
+            num_sensors=,
             pack_no=pack_no,
             value_template_group="telesignalization",
             base_value_template_key="disconnection_cell",
