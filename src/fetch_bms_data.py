@@ -1049,7 +1049,7 @@ class SeplosBatteryPack:
             # Request telesignalization data
             telesignalization_feedback = self._request_feedback_frame(
                 cid2=0x44,
-                expected_length=98,
+                expected_length=96,
                 decoder=self.decode_telesignalization_feedback_frame,
                 frame_label="Telesignalization"
             )
