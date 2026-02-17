@@ -631,8 +631,8 @@ class SeplosBatteryPack:
             'state_of_charge':          { 'offset': 108, 'scale': 1/10, 'round': 1 },
             'rated_capacity':           { 'offset': 112, 'scale': 1/100, 'round': 1 },
             'charging_cycles':          { 'offset': 116 },
-            'state_of_health':          { 'offset': 120, 'scale': 1/10, 'round': 1 },
-            'port_voltage':             { 'offset': 124, 'scale': 1/100, 'round': 2 }
+            'state_of_health':          { 'offset': 120, 'scale': 1/10, 'round': 1 }
+        #    'port_voltage':             { 'offset': 124, 'scale': 1/100, 'round': 2 }
         }
 
         ## Fetch values for all telemetry fields
@@ -654,6 +654,9 @@ class SeplosBatteryPack:
                         signed=signed
                     )
                     value = (raw + bias) * scale
+
+                    logger.debug("Raw field: %s, value: %s", raw, value)
+
                     if rounding is not None:
                         value = round(value, rounding)
                     getattr(self.telemetry, attr)[i] = value
@@ -667,6 +670,9 @@ class SeplosBatteryPack:
                     signed=signed
                 )
                 value = (raw + bias) * scale
+
+                logger.debug("Raw field: %s, value: %s", raw, value)
+
                 if rounding is not None:
                     value = round(value, rounding)
                 setattr(self.telemetry, attr, value)
