@@ -612,19 +612,33 @@ class SeplosBatteryPack:
 
         # 00010F0CF80CF60CF80CF80CF90CF80CF70CF80CD80CF80CF80CF70CF80CF80CF7060B9B0B9A0B9B0B9A0BB40B9DFF3413701E560A27100308271002F003E813740000000000000000
 
-        #     Pack Nr.: 0001
-        #        Cells: 0F
-        # Voltage/Cell: 0CF8 0CF6 0CF8 0CF8 0CF9 0CF8 0CF7 0CF8 0CD8 0CF8 0CF8 0CF7 0CF8 0CF8 0CF7
-        #             : 06
-        #        Temps: 0B9B 0B9A 0B9B 0B9A 0BB4 0B9D 
-        #      Current: FF34
-        #      Voltage: 1370
-        #          SoC: 1E56 
+        #        Pack Nr.: 0001
+        #           Cells: 0F
+        #    Voltage/Cell: 0CF8 0CF6 0CF8 0CF8 0CF9 0CF8 0CF7 0CF8 0CD8 0CF8 0CF8 0CF7 0CF8 0CF8 0CF7
+        #    Tmp. sensors: 06
+        #           Temps: 0B9B 0B9A 0B9B 0B9A 0BB4 0B9D 
+        #         Current: FF34
+        #    Pack Voltage: 1370
+        #  Remaining Cap.: 1E56 
+        #        Reserved: 0A
+        #   Full Capacity: 2710
+        #     Cycle count: 0308
+        #             SoC: 2710
+        #             SoH: 02F0
+        #    Ports/Status: 03E8
+        # 1374
+        # 0000000000000000
+
+
+
+
         #  Prot. flags: 0A27
         #  Warn. flags: 1003
         # Chrg./disch.: 0827
         #   Bal. state: 1002
         #  F003 E813 7400 00000000000000
+
+
 
         telemetry_fields = {
             'voltage_cell':             { 'offset': 6,   'scale': 1/1000, 'round': 3, 'amount': number_of_cells },
@@ -634,13 +648,13 @@ class SeplosBatteryPack:
             'dis_charge_current':       { 'offset': 92,  'scale': 1/100, 'round': 2, 'signed': True },
             'total_pack_voltage':       { 'offset': 96,  'scale': 1/100, 'round': 2 },
             'residual_capacity':        { 'offset': 100, 'scale': 1/100, 'round': 2 }, # SoC
-            'battery_capacity':         { 'offset': 104, 'scale': 1/100, 'round': 1 }, # Protection flags
-            'state_of_charge':          { 'offset': 108, 'scale': 1/10, 'round': 1 },  # Warning flags
-            'rated_capacity':           { 'offset': 112, 'scale': 1, 'round': 1 },     # Charge / discharge enable flags
-            'charging_cycles':          { 'offset': 116, 'scale': 1, 'round': 1 },     # Balancing / state
-            'state_of_health':          { 'offset': 120, 'scale': 1/100, 'round': 1 }, # Remaining capacity (0.1 Ah)
-            'port_voltage':             { 'offset': 124, 'scale': 1/100, 'round': 1 }, # Full capacity (0.1 Ah)
-            'cycle_count':              { 'offset': 128, 'scale': 1, 'round': 1 }      # Cycle count 
+            'battery_capacity':         { 'offset': 106, 'scale': 1/100, 'round': 1 }, # Protection flags
+            'state_of_charge':          { 'offset': 110, 'scale': 1, 'round': 1 },  # Warning flags
+            'rated_capacity':           { 'offset': 114, 'scale': 1, 'round': 1 },     # Charge / discharge enable flags
+            'charging_cycles':          { 'offset': 118, 'scale': 1/100, 'round': 1 },     # Balancing / state
+            'state_of_health':          { 'offset': 122, 'scale': 1/100, 'round': 1 }, # Remaining capacity (0.1 Ah)
+            'port_voltage':             { 'offset': 126, 'scale': 1, 'round': 1 }, # Full capacity (0.1 Ah)
+            'cycle_count':              { 'offset': 130, 'scale': 1, 'round': 1 }      # Cycle count 
         }
 
         ## Fetch values for all telemetry fields
