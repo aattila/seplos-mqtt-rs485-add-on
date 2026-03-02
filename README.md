@@ -31,7 +31,7 @@ The following adapters are tested with success:
 
 ### BMS Port Pinout
 
-![BMS PCB](https://raw.githubusercontent.com/aattila/seplos-mqtt-rs485-add-on/main/img/seplos_bms_pinout.png)
+![Seplos BMS Pinout](https://raw.githubusercontent.com/aattila/seplos-mqtt-rs485-add-on/main/img/seplos-bms-pinout.png)
 
 ## Protocol
 
