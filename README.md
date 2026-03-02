@@ -8,5 +8,9 @@ What is changed:
 - Adaptations for __Seplos V2 ZH__ series.
 
 The Seplos BMS serial number and PCB number is:
+![BMS Serial](https://raw.githubusercontent.com/aattila/seplos-mqtt-rs485-add-on/main/img/bms_serial.png)
+
+![BMS PCB](https://raw.githubusercontent.com/aattila/seplos-mqtt-rs485-add-on/main/img/bms_pcb.png)
 
 It is used and tested for the battery packs below:
+![Battery Pack](https://raw.githubusercontent.com/aattila/seplos-mqtt-rs485-add-on/main/img/battery_pack.png)
