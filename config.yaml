@@ -28,7 +28,7 @@ options:
   min_cell_voltage: 2.5
   max_cell_voltage: 3.65
   mqtt_topic: "seplos"
-  mqtt_update_interval: 1
+  mqtt_update_interval: 30
   enable_ha_discovery: true
   ha_discovery_prefix: "homeassistant"
   invert_ha_dis_charge_measurements: false

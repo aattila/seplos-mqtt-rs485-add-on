@@ -201,7 +201,7 @@ class Config:
     MQTT_USERNAME = get_env_value("MQTT_USERNAME", "seplos-mqtt", str)
     MQTT_PASSWORD = get_env_value("MQTT_PASSWORD", "", str)
     MQTT_TOPIC = get_env_value("MQTT_TOPIC", "seplos", str)
-    MQTT_UPDATE_INTERVAL = get_env_value("MQTT_UPDATE_INTERVAL", 0, int)
+    MQTT_UPDATE_INTERVAL = get_env_value("MQTT_UPDATE_INTERVAL", 30, int)
 
     # Home Assistant Discovery
     ENABLE_HA_DISCOVERY_CONFIG = get_env_value("ENABLE_HA_DISCOVERY_CONFIG", True, bool)
@@ -836,9 +836,6 @@ def main():
         # Initialize MQTT
         app_state.mqtt_client = initialize_mqtt()
 
-        # Initialize Serial
-        app_state.serial_instance = initialize_serial()
-
         # Initialize battery packs
         app_state.battery_packs.clear()
         
@@ -887,6 +884,10 @@ def main():
         pack_index = 0
         while True:
             try:
+
+                # Initialize Serial
+                app_state.serial_instance = initialize_serial()
+
                 current_pack = app_state.battery_packs[pack_index]
                 pack_instance = current_pack["pack_instance"]
                 pack_address = current_pack["address"]
@@ -932,6 +933,8 @@ def main():
 
                 # Mandatory delay between each request or there will be corrupt data
                 time.sleep(1)
+
+                app_state.serial_instance.close()
 
                 # Move to next pack
                 pack_index += 1
