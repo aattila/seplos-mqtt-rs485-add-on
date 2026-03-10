@@ -37,6 +37,13 @@ The following adapters are tested with success:
 
 This BMS uses 19200 baud 8N1 port setup and it is wery important to __set the DIP switches__ for the right address. For this, please follow the binay logic, an example for three pack setup set the DIP switches are set in the following order Pack1: 10000000, Pack2: 01000000, Pack3: 11000000
 
+## Dashboard
+
+You can add your mqtt entities to the Home Assistant dashboard by using a custom card from HACS named: bms-battery-cells-card.
+A three pack battery setup looks like this:
+
+![Dashboard](https://raw.githubusercontent.com/aattila/seplos-mqtt-rs485-add-on/main/img/dashboard.png)
+
 ## For more robustness
 
 In case ig you are using multiple USB serial devices you will facing with the following problems:
